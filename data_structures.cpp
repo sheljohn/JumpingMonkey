@@ -12,9 +12,9 @@
 void SMCSIndexer::ind2sub( const unsigned& n, const unsigned& index, unsigned& i, unsigned& j )
 {
 	// Safety check
-	// if ( (n == 0) || (n*(n+1) <= 2*index) ) return;
+	// if ( (n == 0) || (n*(n+1) <= (index<<1)) ) return;
 
 	const double x = n + 0.5;
 	j = static_cast<unsigned>( x - sqrt( x*x - (index<<1) ) );
-	i = index + (( j*(j-1) )>>1) - (n-1)*j ;
+	i = index - ((j* ( (n<<1) - j-1 )) >> 1);
 }

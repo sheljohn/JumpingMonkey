@@ -99,7 +99,7 @@ public:
 private:
 
 	inline unsigned offset( const unsigned& n, const unsigned& j ) 
-	{ return j<2 ? n*j : (( j*((n<<1)-j+1) ) >> 1); }
+		{ return ( j*((n<<1)-j+1) ) >> 1; }
 
 };
 
