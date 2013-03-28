@@ -8,6 +8,8 @@
 #include "random_engine.h"
 #include "data_structures.h"
 
+//#define FOREST_DEBUG
+
 
 
 	/********************     **********     ********************/
@@ -106,11 +108,13 @@ class Forest
 {
 public:
 
+	/********************     **********     ********************/
+
 	typedef std::vector<unsigned>   vector_type;
 	typedef std::valarray<unsigned> array_type;
 
-	typedef std::pair<unsigned,unsigned> acm_pair_type;
-	typedef std::vector<acm_pair_type>   acm_vector_type;
+	typedef std::pair<unsigned,unsigned> agl_pair_type;
+	typedef std::vector<agl_pair_type>   agl_vector_type;
 
 	/********************     **********     ********************/
 
@@ -125,6 +129,11 @@ public:
 
 	/********************     **********     ********************/
 
+	// Return a random neighbor of the input tree. This simulates a "jump".
+	unsigned random_neighbor( const unsigned& tree ) const;
+
+	/********************     **********     ********************/
+
 	// Return the current number of trees.
 	inline const unsigned& size() const { return n_trees; }
 
@@ -134,17 +143,14 @@ public:
 	inline const array_type&  get_strides() const { return strides; }
 
 	// Export in ACM format for Angelo
-	void acm_export( acm_pair_type& cfg, acm_vector_type& cx ) const;
+	void acm_export( agl_pair_type& cfg, agl_vector_type& cx ) const;
 
 	/********************     **********     ********************/
 
-	// Return the index of a random neighbor of an input tree. This simulates a "jump".
-	unsigned random_neighbor( const unsigned& tree ) const;
-
 private:
 
-	// Set neighborhoods and strides from degrees and temporary adjacency matrix
-	void set_neighborhoods( const bool *G );
+	// Set member data after generating forest
+	void postgen_set( const bool *G );
 
 	// Members
 	// 

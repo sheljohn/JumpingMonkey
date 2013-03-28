@@ -25,20 +25,24 @@ public:
 	valarray_bounds( std::valarray<T>& data ) { bind(data); }
 	~valarray_bounds() { clear(); }
 
-	// Clear members
+	// Clear member data.
 	void clear() { first = last = nullptr; }
 
-	// Test if iterator is ready to be used
+	// Is iterator ready?
 	operator bool() const { return first && last; }
 
-	// Bind to an existing valarray
+	// Bind to an existing valarray.
 	bool bind( std::valarray<T>& data ) 
 	{ 
-		// Input data should not be empty
-		if ( data.size() == 0 ) { clear(); return false; }
+		// Input should not be empty
+		if ( data.size() == 0 ) 
+			{ clear(); return false; }
 
-		// Set boundaries and report success
-		first = &data[0]; last = first + data.size(); 
+		// Set boundaries
+		first = &data[0]; 
+		last  = first + data.size(); 
+
+		// Report success
 		return true;
 	}
 
@@ -75,10 +79,14 @@ public:
 	// Matrix subindices
 	typedef std::pair<unsigned,unsigned> sub_type;
 
+	/********************     **********     ********************/
+
 	// Get subindices from plain index
 	void ind2sub( const unsigned& n, const unsigned& index, unsigned& i, unsigned& j );
 	inline void ind2sub( const unsigned& n, const unsigned& index, sub_type& sub )
 		{ ind2sub( n, index, sub.first, sub.second ); }
+
+	/********************     **********     ********************/
 
 	// Get plain index from subindices
 	inline unsigned sub2ind( const unsigned& n, unsigned i, unsigned j )
@@ -86,9 +94,12 @@ public:
 	inline unsigned sub2ind( const unsigned& n, const sub_type& sub )
 		{ return sub2ind( n, sub.first, sub.second ); }
 
+	/********************     **********     ********************/
+
 private:
 
-	inline unsigned offset( const unsigned& n, const unsigned& j ) { return j<2 ? n*j : (( j*((n<<1)-j+1) ) >> 1); }
+	inline unsigned offset( const unsigned& n, const unsigned& j ) 
+	{ return j<2 ? n*j : (( j*((n<<1)-j+1) ) >> 1); }
 
 };
 

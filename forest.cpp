@@ -312,10 +312,38 @@ void Forest::generate( const unsigned& n )
 	generate_cur_graph(degrees,graph);
 
 	// Set neighbors and strides
-	set_neighborhoods(graph);
+	postgen_set(graph);
 
 	// Free adjacency matrix
 	free(graph);
+
+
+
+/**
+ * Debug section
+ */
+#ifdef FOREST_DEBUG
+	
+	// Show degrees, neighbors and strides
+	printf(" degrees(%u) = [", degrees.size() );
+	for ( unsigned k = 0; k < degrees.size(); ++k ) printf( " %u ", degrees[k] );
+	printf("]\n");
+
+	printf(" strides(%u) = [", strides.size() );
+	for ( unsigned k = 0; k < strides.size(); ++k ) printf( " %u ", strides[k] );
+	printf("]\n");
+
+	printf(" neighbors(%u) = [", neighbors.size() );
+	for ( unsigned k = 0; k < neighbors.size(); ++k ) printf( " %u ", neighbors[k] );
+	printf("]\n");
+
+	printf("------------------\n");
+	for ( unsigned t = 0; t < n_trees; ++t )
+	for ( unsigned d = 0; d < degrees[t]; ++d )
+		printf("%u %u\n", t, neighbors[ strides[t] + d ]);
+	printf("------------------\n");
+
+#endif
 }
 
 
@@ -325,7 +353,7 @@ void Forest::generate( const unsigned& n )
  * from a generated graph.]
  * @param G [Output of generate_cur_graph().]
  */
-void Forest::set_neighborhoods( const bool *G )
+void Forest::postgen_set( const bool *G )
 {
 	// Static indexer
 	static SMCSIndexer indexer;
@@ -362,8 +390,23 @@ unsigned Forest::random_neighbor( const unsigned& tree ) const
 	// Create uniform distribution
 	std::uniform_int_distribution<unsigned> U( 0, degrees[tree]-1 );
 
+
+
+/**
+ * Debug switch
+ */
+#ifdef FOREST_DEBUG
+
+	const unsigned n = neighbors[ strides[tree] + U( *MersenneTwister::get_engine() ) ];
+	printf( "Jumping from %u to %u\n", tree, n );
+	return n;
+	
+#else
+
 	// Return random neighbor
 	return neighbors[ strides[tree] + U( *MersenneTwister::get_engine() ) ];
+
+#endif
 }
 
 
@@ -373,19 +416,26 @@ unsigned Forest::random_neighbor( const unsigned& tree ) const
  * @param cfg [Pair of unsigned; (n_trees,n_links).]
  * @param cx  [Vector of pairs of unsigned (tree_a,tree_b).]
  */
-void Forest::acm_export( acm_pair_type& cfg, acm_vector_type& cx ) const
+void Forest::acm_export( agl_pair_type& cfg, agl_vector_type& cx ) const
 {
 	// Set configuration first
 	cfg.first  = n_trees;
-	cfg.second = neighbors.size();
+	cfg.second = neighbors.size() >> 1;
 
 	// Set adjacency information
-	cx.resize( cfg.second );
+	cx.resize( cfg.second ); unsigned i = 0;
 	for ( unsigned tree = 0; tree < n_trees; ++tree )
 	for ( unsigned d = 0; d < degrees[tree]; ++d )
 	{
-		cx[tree].first  = tree;
-		cx[tree].second = neighbors[ strides[tree] + d ];
+		// Current neighbor of 'tree'
+		const unsigned n = neighbors[ strides[tree] + d ];
+
+		// Discard doublons
+		if ( n < tree ) continue;
+
+		// Write current edge
+		cx[i  ].first  = tree;
+		cx[i++].second = n;
 	}
 }
 
