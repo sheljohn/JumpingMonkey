@@ -261,14 +261,14 @@ void Benchmark::run_instance()
 		angelo->restart();
 		jonathan->restart();
 
-		// Initialize counters and flags
+		// Initialize counters, times and flags
 		counts_angelo.push_back(0);
 		counts_jonathan.push_back(0);
-		killed_a = killed_j = false;
 
-		// Start timer and insert times
 		time_angelo.push_back(0.0);
 		time_jonathan.push_back(0.0);
+
+		killed_a = killed_j = false;
 
 		// Start the competition
 		while ( !killed_a || !killed_j )
