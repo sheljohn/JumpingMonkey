@@ -82,6 +82,7 @@ void Chuck::reload()
 {
 	array_a.resize(n_nodes, (1.0/n_nodes) );
 	array_b.resize(n_nodes, (1.0/n_nodes) );
+	shot_count = 0;
 }
 
 
