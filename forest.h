@@ -104,7 +104,7 @@ void generate_cur_graph( const std::valarray<unsigned>& d, bool *G );
  * efficiently a "jump" of the monkey from it's current tree to a neighbor tree.
  * The adjacency storage is designed to be access-efficient, somewhat like a CRS.
  */
-class Forest
+class Forest // ... run!!
 {
 public:
 
