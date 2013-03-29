@@ -43,6 +43,9 @@ public:
 	// Shoot
 	int shoot();
 
+	// Get shot count
+	inline const unsigned& get_shot_count() const { return shot_count; }
+
 private:
 
 	// Swap pointers to arrays
