@@ -33,7 +33,7 @@ struct ChuckInterface
 	 * he should prepare for the hunt by resetting all relevant 
 	 * valriables to their initial state. The forest remains 
 	 * unchanged and the shoot method will not be called before 
-	 * reload.
+	 * restart.
 	 */
 	virtual void restart() =0;
 
