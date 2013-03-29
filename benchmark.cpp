@@ -8,6 +8,17 @@
 
 
 /**
+ * [JumpingMonkeyInstance::print Print current contents to stdout.]
+ */
+void JumpingMonkeyInstance::print() const
+{
+	forest.print();
+	printf("Current tree is: %u\n", current_tree);
+}
+
+
+
+/**
  * [JumpingMonkeyInstance::restart Generate a new forest and put Bob in it.]
  */
 void JumpingMonkeyInstance::setup( const unsigned& n_trees )
@@ -64,7 +75,7 @@ unsigned JumpingMonkeyInstance::jump()
 void ResultsStatistics::process( const std::vector<int>& results )
 {
 	// Set number of samples
-	const unsigned N = results.size();
+	n_samples = results.size();
 
 	// Initialize members
 	average = std = success_ratio = 0.0; 
@@ -77,18 +88,32 @@ void ResultsStatistics::process( const std::vector<int>& results )
 			average += *it; success_ratio += 1.0;
 
 			// Update min/max
-			if ( *it < min )      min = *it;
-			else if ( *it > max ) max = *it;
+			if ( *it < min ) min = *it;
+			if ( *it > max ) max = *it;
 		}
 
 	average       /= success_ratio; 
-	success_ratio /= N;
+	success_ratio /= n_samples;
 
 	// Evaluate std
+	if ( n_samples > 1 ){ 
 	for ( auto it = results.begin(); it != results.end(); ++it )
 	{
 		const double a = *it - average; std += a*a;
-	}	std /= (N-1);
+	}	std /= (n_samples-1); }
+}
+
+
+
+/**
+ * [ResultsStatistics::print Display contents on stdout.]
+ */
+void ResultsStatistics::print() const
+{
+	printf("Results statistics (%u samples):\n", n_samples);
+	printf("\t- Min=%d, Max=%d\n", min, max);
+	printf("\t- Avg=%.5f, Std=%.5f\n", average, std);
+	printf("\t- Success ratio=%.2f%%\n", 100*success_ratio);
 }
 
 
@@ -107,7 +132,7 @@ void Benchmark::clear()
 	angelo = jonathan = nullptr;
 
 	// Reset scalars
-	n_trees = n_instances = n_trials = current_instance = 0;
+	n_trees = n_instances = n_trials = 0;
 
 	// Clear vectors
 	counts_angelo.clear();
@@ -124,22 +149,23 @@ void Benchmark::clear()
  * @param  trees     [Number of trees for the current benchmark.]
  * @param  instances [Number of forests to generate.]
  * @param  trials    [Number of trials for each hunter in the forest.]
- * @return           [Setup success.]
  */
-bool Benchmark::setup( const unsigned& trees, const unsigned& instances, const unsigned& trials )
+void Benchmark::setup( const unsigned& trees, const unsigned& instances, const unsigned& trials )
 {
-	// Safety check
-	if ( is_running() ) return false;
-
 	// Set members
 	n_trees = trees; n_instances = instances; n_trials = trials;
 
-	// Allocate arrays
-	counts_angelo.reserve( instances*trials );
-	counts_jonathan.reserve( instances*trials );
+	// Allocate counts
+	counts_angelo.reserve( n_instances*n_trials );
+	counts_jonathan.reserve( n_instances*n_trials );
 
-	// Report success
-	return true;
+	// DEBUG
+	printf("---------- BENCHMARK ----------\n");
+	printf( "Number of trees    : %u\n", n_trees );
+	printf( "Number of instances: %u\n", n_instances );
+	printf( "Number of trials   : %u\n", n_trials );
+	printf( "Counts sizes       : A(%u), J(%u)\n", counts_angelo.size(), counts_jonathan.size() );
+	printf("-------------------------------\n");
 }
 
 
@@ -148,19 +174,11 @@ bool Benchmark::setup( const unsigned& trees, const unsigned& instances, const u
  * [Benchmark::set_hunters Register both hunters.]
  * @param  A [Angelo.]
  * @param  J [Jonathan.]
- * @return   [Registration success.]
  */
-bool Benchmark::set_hunters( ChuckInterface *A, ChuckInterface *J )
+void Benchmark::set_hunters( ChuckInterface *A, ChuckInterface *J )
 {
-	// Safety check
-	if ( !A || !J ) return false;
-
-	// Set pointers
 	angelo   = A; 
 	jonathan = J;
-
-	// Report success
-	return true;
 }
 
 
@@ -175,10 +193,14 @@ bool Benchmark::set_hunters( ChuckInterface *A, ChuckInterface *J )
 bool Benchmark::run( result_type& A, result_type& J )
 {
 	// Safety check
-	if ( !is_ready() || is_running() ) return false;
+	if ( !*this ) return false;
+
+	// Clear counts
+	counts_angelo.clear();
+	counts_jonathan.clear();
 
 	// Iterate on each instance
-	for ( unsigned current_instance = 0; current_instance < n_instances; ++current_instance )
+	for ( unsigned i = 0; i < n_instances; ++i )
 	{
 		// Create new instance
 		instance.setup(n_trees);

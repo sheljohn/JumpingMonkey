@@ -8,8 +8,6 @@
 #include "random_engine.h"
 #include "data_structures.h"
 
-//#define FOREST_DEBUG
-
 
 
 	/********************     **********     ********************/
@@ -126,6 +124,9 @@ public:
 
 	// Generate a random forest with n trees.
 	void generate( const unsigned& n );
+
+	// Display contents to stdout
+	void print() const;
 
 	/********************     **********     ********************/
 

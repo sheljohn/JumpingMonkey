@@ -283,6 +283,35 @@ void Forest::clear()
 
 
 /**
+ * [Forest::print Display contents in stdout.]
+ */
+void Forest::print() const
+{
+	printf("**************************************\n");
+
+	// Show degrees, neighbors and strides
+	printf(" degrees(%u) = [", degrees.size() );
+	for ( unsigned k = 0; k < degrees.size(); ++k ) printf( " %u ", degrees[k] );
+	printf("]\n");
+
+	printf(" strides(%u) = [", strides.size() );
+	for ( unsigned k = 0; k < strides.size(); ++k ) printf( " %u ", strides[k] );
+	printf("]\n");
+
+	printf(" neighbors(%u) = [", neighbors.size() );
+	for ( unsigned k = 0; k < neighbors.size(); ++k ) printf( " %u ", neighbors[k] );
+	printf("]\n");
+
+	printf("------------------\n");
+	for ( unsigned t = 0; t < n_trees; ++t )
+	for ( unsigned d = 0; d < degrees[t]; ++d )
+		printf("%u %u\n", t, neighbors[ strides[t] + d ]);
+	printf("======================================\n");	
+}
+
+
+
+/**
  * [Forest::generate Generate a new forest with n trees.]
  * @param n [Number of trees (>=2).]
  */
@@ -316,34 +345,6 @@ void Forest::generate( const unsigned& n )
 
 	// Free adjacency matrix
 	free(graph);
-
-
-
-/**
- * Debug section
- */
-#ifdef FOREST_DEBUG
-	
-	// Show degrees, neighbors and strides
-	printf(" degrees(%u) = [", degrees.size() );
-	for ( unsigned k = 0; k < degrees.size(); ++k ) printf( " %u ", degrees[k] );
-	printf("]\n");
-
-	printf(" strides(%u) = [", strides.size() );
-	for ( unsigned k = 0; k < strides.size(); ++k ) printf( " %u ", strides[k] );
-	printf("]\n");
-
-	printf(" neighbors(%u) = [", neighbors.size() );
-	for ( unsigned k = 0; k < neighbors.size(); ++k ) printf( " %u ", neighbors[k] );
-	printf("]\n");
-
-	printf("------------------\n");
-	for ( unsigned t = 0; t < n_trees; ++t )
-	for ( unsigned d = 0; d < degrees[t]; ++d )
-		printf("%u %u\n", t, neighbors[ strides[t] + d ]);
-	printf("------------------\n");
-
-#endif
 }
 
 
@@ -390,23 +391,8 @@ unsigned Forest::random_neighbor( const unsigned& tree ) const
 	// Create uniform distribution
 	std::uniform_int_distribution<unsigned> U( 0, degrees[tree]-1 );
 
-
-
-/**
- * Debug switch
- */
-#ifdef FOREST_DEBUG
-
-	const unsigned n = neighbors[ strides[tree] + U( *MersenneTwister::get_engine() ) ];
-	printf( "Jumping from %u to %u\n", tree, n );
-	return n;
-	
-#else
-
 	// Return random neighbor
 	return neighbors[ strides[tree] + U( *MersenneTwister::get_engine() ) ];
-
-#endif
 }
 
 

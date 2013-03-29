@@ -1,6 +1,7 @@
 #ifndef __BENCHMARK__
 #define __BENCHMARK__
 
+#include <cstdio>
 #include <vector>
 #include <limits>
 #include "random_engine.h"
@@ -22,6 +23,9 @@ public:
 
 	// Clear member data
 	inline void clear() { forest.clear(); }
+
+	// Display current state
+	void print() const;
 
 	// Is the instance ready?
 	inline operator bool() const { return forest; }
@@ -58,14 +62,12 @@ private:
 struct ResultsStatistics 
 { 
 	double average, std, success_ratio; 
+	unsigned n_samples;
 	int min, max;
 
 	void process( const std::vector<int>& results );
+	void print() const;
 };
-
-
-
-	/********************     **********     ********************/
 
 
 
@@ -82,22 +84,20 @@ public:
 
 	typedef ResultsStatistics result_type;
 
+	/********************     **********     ********************/
+
 	// Clear all members
 	void clear();
 
+	// Is the benchmark ready to be run?
+	inline operator bool() const 
+	{ return angelo && jonathan && n_trees && n_instances*n_trials; }
+
 	// Setup new benchmark
-	bool setup( const unsigned& trees, const unsigned& instances, const unsigned& trials );
+	void setup( const unsigned& trees, const unsigned& instances, const unsigned& trials );
 
 	// Set hunters
-	bool set_hunters( ChuckInterface *A, ChuckInterface *J );
-
-	// Progress monitors (of course, it's not thread-safe..)
-	inline bool is_ready() const 
-		{ return angelo && jonathan && n_trees && (current_instance < n_instances); }
-	inline bool is_running() const 
-		{ return is_ready() && current_instance; }
-	inline bool is_finished() const 
-		{ return angelo && jonathan && n_trees && (current_instance == n_instances); }
+	void set_hunters( ChuckInterface *A, ChuckInterface *J );
 
 	// Run the benchmark
 	bool run( result_type& A, result_type& J );
@@ -112,7 +112,7 @@ private:
 
 	// Members
 	// 
-	unsigned n_trees, n_instances, n_trials, current_instance;
+	unsigned n_trees, n_instances, n_trials;
 	std::vector<int> counts_angelo, counts_jonathan;
 	ChuckInterface *angelo, *jonathan;
 	JumpingMonkeyInstance instance;
