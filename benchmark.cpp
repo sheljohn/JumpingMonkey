@@ -8,17 +8,6 @@
 
 
 /**
- * [JumpingMonkeyInstance::print Print current contents to stdout.]
- */
-void JumpingMonkeyInstance::print() const
-{
-	forest.print();
-	printf("Current tree is: %u\n", current_tree);
-}
-
-
-
-/**
  * [JumpingMonkeyInstance::restart Generate a new forest and put Bob in it.]
  */
 void JumpingMonkeyInstance::setup( const unsigned& n_trees )
@@ -100,7 +89,7 @@ void ResultsStatistics::process( const std::vector<int>& results )
 	for ( auto it = results.begin(); it != results.end(); ++it )
 	{
 		const double a = *it - average; std += a*a;
-	}	std /= (n_samples-1); }
+	}	std = sqrt( std / (n_samples-1) ); }
 }
 
 
@@ -108,9 +97,9 @@ void ResultsStatistics::process( const std::vector<int>& results )
 /**
  * [ResultsStatistics::print Display contents on stdout.]
  */
-void ResultsStatistics::print() const
+void ResultsStatistics::print( const char* name ) const
 {
-	printf("Results statistics (%u samples):\n", n_samples);
+	printf("%s's performances summary (%u samples):\n", name, n_samples);
 	printf("\t- Min=%d, Max=%d\n", min, max);
 	printf("\t- Avg=%.5f, Std=%.5f\n", average, std);
 	printf("\t- Success ratio=%.2f%%\n", 100*success_ratio);
@@ -159,13 +148,14 @@ void Benchmark::setup( const unsigned& trees, const unsigned& instances, const u
 	counts_angelo.reserve( n_instances*n_trials );
 	counts_jonathan.reserve( n_instances*n_trials );
 
-	// DEBUG
-	printf("---------- BENCHMARK ----------\n");
+#ifdef BENCHMARK_VERBOSE
+
+	printf("---------- CONFIGURATION ----------\n");
 	printf( "Number of trees    : %u\n", n_trees );
 	printf( "Number of instances: %u\n", n_instances );
 	printf( "Number of trials   : %u\n", n_trials );
-	printf( "Counts sizes       : A(%u), J(%u)\n", counts_angelo.size(), counts_jonathan.size() );
-	printf("-------------------------------\n");
+	
+#endif
 }
 
 
@@ -206,8 +196,8 @@ bool Benchmark::run( result_type& A, result_type& J )
 		instance.setup(n_trees);
 
 		// Set forests
-		angelo->set_forest( instance.get_forest() );
-		jonathan->set_forest( instance.get_forest() );
+		if ( !(angelo->set_forest( instance.get_forest() )) || 
+			!(jonathan->set_forest( instance.get_forest() )) ) return false;
 
 		// Run n_trials times
 		run_instance();
@@ -239,13 +229,17 @@ void Benchmark::run_instance()
 	// Iterate on trials
 	for ( unsigned t = 0; t < n_trials; ++t )
 	{
+		// Put Bob somewhere
+		monkey = instance.restart();
+
+		// Notify hunters
+		angelo->reload();
+		jonathan->reload();
+
 		// Initialize counters and flags
 		counts_angelo.push_back(0);
 		counts_jonathan.push_back(0);
 		killed_a = killed_j = false;
-
-		// Put Bob somewhere
-		monkey = instance.restart();
 
 		// Start the competition
 		while ( !killed_a || !killed_j )
@@ -274,7 +268,7 @@ void Benchmark::run_shooting( ChuckInterface *chuck, const unsigned& bob, int& c
 	int shot = chuck->shoot(); ++count;
 
 	if ( shot < 0 ) { count = -1; killed = true; }
-	else if ( shot == (int) bob ) killed = true;
+	else if ( shot == (int) bob ) killed = true; 
 }
 
 

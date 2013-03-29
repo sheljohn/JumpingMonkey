@@ -7,6 +7,8 @@
 #include "random_engine.h"
 #include "chuck.h"
 
+#define BENCHMARK_VERBOSE
+
 
 
 	/********************     **********     ********************/
@@ -23,9 +25,6 @@ public:
 
 	// Clear member data
 	inline void clear() { forest.clear(); }
-
-	// Display current state
-	void print() const;
 
 	// Is the instance ready?
 	inline operator bool() const { return forest; }
@@ -66,7 +65,7 @@ struct ResultsStatistics
 	int min, max;
 
 	void process( const std::vector<int>& results );
-	void print() const;
+	void print( const char* name = "Unknown" ) const;
 };
 
 

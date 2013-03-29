@@ -4,6 +4,8 @@
 #include <valarray>
 #include "forest.h"
 
+#define CHUCK_EPSILON 1e-10
+
 
 
 	/********************     **********     ********************/
@@ -17,6 +19,7 @@
 struct ChuckInterface
 {
 	virtual bool set_forest( const Forest& forest ) =0;
+	virtual void reload() =0;
 	virtual int shoot() =0;
 };
 
@@ -39,6 +42,9 @@ public:
 
 	// Set from current forest
 	bool set_forest( const Forest& forest );
+
+	// Reset probability tables to uniform distribution
+	void reload();
 
 	// Shoot
 	int shoot();

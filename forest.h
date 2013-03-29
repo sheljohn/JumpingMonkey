@@ -151,7 +151,7 @@ public:
 private:
 
 	// Set member data after generating forest
-	void postgen_set( const bool *G );
+	bool postgen_set( const bool *G );
 
 	// Members
 	// 

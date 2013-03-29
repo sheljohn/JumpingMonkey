@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-W -Wall -pedantic -std=c++0x
+CFLAGS=-W -pedantic -std=c++0x
 
 jumping_monkey: main.cpp benchmark.cpp chuck.cpp forest.cpp data_structures.cpp
 	$(CC) -o $@ $(CFLAGS) $^

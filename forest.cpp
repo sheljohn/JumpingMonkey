@@ -327,21 +327,27 @@ void Forest::generate( const unsigned& n )
 	degrees.resize(n,1);
 	strides.resize(n+1,0);
 
-	// Generate random graphical sequence of degrees
-	generate_graphic_sequence(degrees);
-
-	// Make a reasonnable assumption about the number of edges
-	neighbors.clear();
-	neighbors.reserve( degrees.sum() >> 1 );
-
 	// Allocate boolean adjacency matrix
 	bool *graph = (bool*) calloc( n*(n+1) >> 1, sizeof(bool) );
 
-	// Generate random graph
-	generate_cur_graph(degrees,graph);
+	// Generation process can take a few cycles
+	bool success = false;
 
-	// Set neighbors and strides
-	postgen_set(graph);
+	while ( !success )
+	{
+		// Generate random graphical sequence of degrees
+		generate_graphic_sequence(degrees);
+
+		// Make a reasonnable assumption about the number of edges
+		neighbors.clear();
+		neighbors.reserve( degrees.sum() >> 1 );
+
+		// Generate random graph
+		generate_cur_graph(degrees,graph);
+
+		// Set neighbors and strides
+		success = postgen_set(graph);
+	}
 
 	// Free adjacency matrix
 	free(graph);
@@ -354,10 +360,13 @@ void Forest::generate( const unsigned& n )
  * from a generated graph.]
  * @param G [Output of generate_cur_graph().]
  */
-void Forest::postgen_set( const bool *G )
+bool Forest::postgen_set( const bool *G )
 {
 	// Static indexer
 	static SMCSIndexer indexer;
+
+	// Detect degenerate cases
+	bool degenerate = false;
 
 	// Fill neighbors
 	for ( unsigned tree = 0; tree < n_trees; ++tree )
@@ -375,7 +384,13 @@ void Forest::postgen_set( const bool *G )
 
 		// Set final degrees
 		degrees[tree] = strides[tree+1] - strides[tree];
+
+		// Detect null degree
+		degenerate = degenerate || (degrees[tree] == 0);
 	}
+
+	// Report degenerate flag
+	return !degenerate;
 }
 
 
@@ -392,7 +407,7 @@ unsigned Forest::random_neighbor( const unsigned& tree ) const
 	std::uniform_int_distribution<unsigned> U( 0, degrees[tree]-1 );
 
 	// Return random neighbor
-	return neighbors[ strides[tree] + U( *MersenneTwister::get_engine() ) ];
+	return neighbors.at( strides[tree] + U( *MersenneTwister::get_engine() ) );
 }
 
 

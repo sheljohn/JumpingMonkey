@@ -29,10 +29,23 @@ int main()
 	unsigned i = 0;
 	for ( unsigned n = 6; n < 22; ++n, ++i )
 	{
+		// Notify
+		printf("******************************************\n");
+		printf("    STARTING BENCHMARK WITH %u TREES        ");
+		printf("******************************************\n");
+
 		// Setup benchmark
 		benchmark.setup( n, n*n, n );
 
 		// Run benchmark
-		benchmark.run( a_results[i], j_results[i] );
+		if ( !benchmark.run( a_results[i], j_results[i] ) )
+		{
+			printf("An error occured during benchmark. Aborting.");
+			continue;
+		}
+
+		// Print results
+		a_results[i].print("Angelo");
+		j_results[i].print("Jonathan");
 	}
 }

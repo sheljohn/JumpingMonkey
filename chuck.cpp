@@ -47,9 +47,8 @@ bool Chuck::set_forest( const Forest& forest )
 	degrees   = forest.get_degrees(); // Note: std requires to resize first, but gcc is a big boy.
 	neighbors = std::valarray<unsigned>( forest.get_neighbors().data(), n_edges );
 
-	// Uniform probability distributions at first
-	array_a.resize(n_nodes, (1.0/n_nodes) );
-	array_b.resize(n_nodes, (1.0/n_nodes) );
+	// Load gun
+	reload();
 
 	// Set distributions pointers
 	pi_new = &array_a[0];
@@ -77,11 +76,25 @@ void Chuck::swap_pointers()
 
 
 /**
+ * [Chuck::reload Set tables to uniform probability distributions.]
+ */
+void Chuck::reload()
+{
+	array_a.resize(n_nodes, (1.0/n_nodes) );
+	array_b.resize(n_nodes, (1.0/n_nodes) );
+}
+
+
+
+/**
  * [Chuck::shoot Shoot the darn monkey.]
  * @return [The chosen tree (that sounds like Avatar..). If Chuck is stuck, dial -1.]
  */
 int Chuck::shoot()
 {
+	// Safety check
+	if ( n_nodes == 0 || n_edges == 0 ) return -1;
+
 	// Remember current shot
 	const unsigned tree = next_shot;
 
@@ -106,6 +119,13 @@ int Chuck::shoot()
 			next_shot = t; 
 			pi_max    = pi_new[t]; 
 		}
+	}
+
+	// If max has become too small, scale tables
+	if ( pi_max <= CHUCK_EPSILON )
+	{
+		array_a /= CHUCK_EPSILON;
+		array_b /= CHUCK_EPSILON;
 	}
 
 	// Return current shot
