@@ -58,7 +58,7 @@ private:
 struct ResultsStatistics 
 { 
 	double average, std, success_ratio; 
-	unsigned min, max;
+	int min, max;
 
 	void process( const std::vector<int>& results );
 };

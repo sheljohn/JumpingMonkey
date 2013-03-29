@@ -10,13 +10,13 @@
 /**
  * [JumpingMonkeyInstance::restart Generate a new forest and put Bob in it.]
  */
-void JumpingMonkeyInstance::setup()
+void JumpingMonkeyInstance::setup( const unsigned& n_trees )
 {
 	// Generate new forest
-	forest.generate(n);
+	forest.generate(n_trees);
 
 	// Create uniform distribution
-	std::uniform_int_distribution<unsigned> U( 0, n-1 );
+	std::uniform_int_distribution<unsigned> U( 0, n_trees-1 );
 
 	// Put Bob in a random tree
 	current_tree = U( *MersenneTwister::get_engine() );
@@ -68,7 +68,7 @@ void ResultsStatistics::process( const std::vector<int>& results )
 
 	// Initialize members
 	average = std = success_ratio = 0.0; 
-	max = 0; min = std::numeric_limits<unsigned>::max();
+	max = 0; min = std::numeric_limits<int>::max();
 
 	// Compute average, success ratio, min and max
 	for ( auto it = results.begin(); it != results.end(); ++it ) if ( *it > 0 ) 
@@ -132,7 +132,7 @@ bool Benchmark::setup( const unsigned& trees, const unsigned& instances, const u
 	if ( is_running() ) return false;
 
 	// Set members
-	n_trees = tree; n_instances = instances; n_trials = trials;
+	n_trees = trees; n_instances = instances; n_trials = trials;
 
 	// Allocate arrays
 	counts_angelo.reserve( instances*trials );
