@@ -91,19 +91,18 @@ int Chuck::shoot()
 	// Remember current shot
 	const unsigned tree = next_shot;
 
-	// Reset probability distribution
-	swap_pointers();
-	for ( unsigned t = 0; t < n_nodes; ++t ) pi_new[t] = 0.0;
-
 	// Compute new probability distribution
-	double pi_max = 0.0; unsigned neighbor;
-	for ( unsigned t = 0; t < n_nodes; ++t ) if ( t != tree )
+	swap_pointers(); double pi_max = 0.0; unsigned neighbor;
+	for ( unsigned t = 0; t < n_nodes; ++t )
 	{
-		// Update probability of tree t
+		// Reset probability
+		pi_new[t] = 0.0;
+
+		// Update probability
 		for ( unsigned d = 0; d < degrees[t]; ++d )
 		{
-			neighbor   = neighbors[ strides[t] + d ];
-			pi_new[t] += pi_old[ neighbor ] / degrees[ neighbor ];
+			neighbor = neighbors[ strides[t] + d ];
+			if ( neighbor != tree ) pi_new[t] += pi_old[ neighbor ] / degrees[ neighbor ];
 		}
 
 		// Update next shot
