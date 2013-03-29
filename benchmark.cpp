@@ -61,34 +61,49 @@ unsigned JumpingMonkeyInstance::jump()
  * [ResultsStatistics::process Compute statistics from benchmark results.]
  * @param results [The counts vector stored for each hunter.]
  */
-void ResultsStatistics::process( const std::vector<int>& results )
+void ResultsStatistics::process( const std::vector<int>& results, const std::vector<double>& times )
 {
+	// Safety check
+	if ( results.size() != times.size() ) return;
+
 	// Set number of samples
 	n_samples = results.size();
 
 	// Initialize members
 	average = std = success_ratio = 0.0; 
 	max = 0; min = std::numeric_limits<int>::max();
+	time_min = std::numeric_limits<double>::max();
+	time_average = time_max = 0.0;
 
 	// Compute average, success ratio, min and max
-	for ( auto it = results.begin(); it != results.end(); ++it ) if ( *it > 0 ) 
+	auto r = results.begin();
+	auto t = times.begin();
+	for ( ; r != results.end(); ++r, ++t ) if ( *r > 0 ) 
 		{
 			// Update average and success ratio 
-			average += *it; success_ratio += 1.0;
+			average += *r; success_ratio += 1.0;
+
+			// Update average time
+			time_average += *t;
 
 			// Update min/max
-			if ( *it < min ) min = *it;
-			if ( *it > max ) max = *it;
+			if ( *r < min ) min = *r;
+			if ( *r > max ) max = *r;
+
+			// Update min and max times
+			if ( *t < time_min ) time_min = *t;
+			if ( *t > time_max ) time_max = *t;
 		}
 
 	average       /= success_ratio; 
+	time_average  /= success_ratio; 
 	success_ratio /= n_samples;
 
 	// Evaluate std
 	if ( n_samples > 1 ){ 
-	for ( auto it = results.begin(); it != results.end(); ++it )
+	for ( auto r = results.begin(); r != results.end(); ++r )
 	{
-		const double a = *it - average; std += a*a;
+		const double a = *r - average; std += a*a;
 	}	std = sqrt( std / (n_samples-1) ); }
 }
 
@@ -102,6 +117,7 @@ void ResultsStatistics::print( const char* name ) const
 	printf("%s's performances summary (%u samples):\n", name, n_samples);
 	printf("\t- Min=%d, Max=%d\n", min, max);
 	printf("\t- Avg=%.5f, Std=%.5f\n", average, std);
+	printf("\t- Time (ms): avg=%.5f, min=%.5f, max=%.5f\n", time_average*1000, time_min*1000, time_max*1000);
 	printf("\t- Success ratio=%.2f%%\n", 100*success_ratio);
 }
 
@@ -127,6 +143,9 @@ void Benchmark::clear()
 	counts_angelo.clear();
 	counts_jonathan.clear();
 
+	time_angelo.clear();
+	time_jonathan.clear();
+
 	// Clear instance
 	instance.clear();
 }
@@ -144,9 +163,12 @@ void Benchmark::setup( const unsigned& trees, const unsigned& instances, const u
 	// Set members
 	n_trees = trees; n_instances = instances; n_trials = trials;
 
-	// Allocate counts
+	// Allocate counts and times
 	counts_angelo.reserve( n_instances*n_trials );
 	counts_jonathan.reserve( n_instances*n_trials );
+
+	time_angelo.reserve( n_instances*n_trials );
+	time_jonathan.reserve( n_instances*n_trials );
 
 #ifdef BENCHMARK_VERBOSE
 
@@ -185,9 +207,12 @@ bool Benchmark::run( result_type& A, result_type& J )
 	// Safety check
 	if ( !*this ) return false;
 
-	// Clear counts
+	// Clear counts and times
 	counts_angelo.clear();
 	counts_jonathan.clear();
+
+	time_angelo.clear();
+	time_jonathan.clear();
 
 	// Iterate on each instance
 	for ( unsigned i = 0; i < n_instances; ++i )
@@ -204,8 +229,8 @@ bool Benchmark::run( result_type& A, result_type& J )
 	}
 
 	// Compute results
-	A.process( counts_angelo );
-	J.process( counts_jonathan );
+	A.process( counts_angelo, time_angelo );
+	J.process( counts_jonathan, time_jonathan );
 
 	// Report success
 	return true;
@@ -241,12 +266,16 @@ void Benchmark::run_instance()
 		counts_jonathan.push_back(0);
 		killed_a = killed_j = false;
 
+		// Start timer and insert times
+		time_angelo.push_back(0.0);
+		time_jonathan.push_back(0.0);
+
 		// Start the competition
 		while ( !killed_a || !killed_j )
 		{
 			// Let the hunters shoot
-			if ( !killed_a ) run_shooting( angelo, monkey, counts_angelo.back(), killed_a );
-			if ( !killed_j ) run_shooting( jonathan, monkey, counts_jonathan.back(), killed_j );
+			if ( !killed_a ) run_shooting( angelo, monkey, counts_angelo.back(), time_angelo.back(), killed_a );
+			if ( !killed_j ) run_shooting( jonathan, monkey, counts_jonathan.back(), time_jonathan.back(), killed_j );
 
 			// Let Bob jump
 			monkey = instance.jump();
@@ -263,12 +292,19 @@ void Benchmark::run_instance()
  * @param count  [Current shot_count for the player.]
  * @param killed [Will be set to true if Bob is killed.]
  */
-void Benchmark::run_shooting( ChuckInterface *chuck, const unsigned& bob, int& count, bool& killed )
+void Benchmark::run_shooting( ChuckInterface *chuck, const unsigned& bob, int& count, double& time, bool& killed )
 {
+	// Start clock
+	const clock_t t = clock();
+
+	// Shoot
 	int shot = chuck->shoot(); ++count;
 
 	if ( shot < 0 ) { count = -1; killed = true; }
 	else if ( shot == (int) bob ) killed = true; 
+
+	// Add to timer
+	time += ((double) clock() - t) / CLOCKS_PER_SEC;
 }
 
 

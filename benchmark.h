@@ -1,6 +1,7 @@
 #ifndef __BENCHMARK__
 #define __BENCHMARK__
 
+#include <ctime>
 #include <cstdio>
 #include <vector>
 #include <limits>
@@ -61,10 +62,11 @@ private:
 struct ResultsStatistics 
 { 
 	double average, std, success_ratio; 
-	unsigned n_samples;
-	int min, max;
+	unsigned n_samples; int min, max;
 
-	void process( const std::vector<int>& results );
+	double time_average, time_min, time_max;
+
+	void process( const std::vector<int>& results, const std::vector<double>& times );
 	void print( const char* name = "Unknown" ) const;
 };
 
@@ -107,14 +109,16 @@ private:
 	void run_instance();
 
 	// Internal method to run one shooting
-	void run_shooting( ChuckInterface *chuck, const unsigned& bob, int& count, bool& killed );
+	void run_shooting( ChuckInterface *chuck, const unsigned& bob, int& count, double& time, bool& killed );
 
 	// Members
 	// 
 	unsigned n_trees, n_instances, n_trials;
-	std::vector<int> counts_angelo, counts_jonathan;
 	ChuckInterface *angelo, *jonathan;
 	JumpingMonkeyInstance instance;
+
+	std::vector<int> counts_angelo, counts_jonathan;
+	std::vector<double> time_angelo, time_jonathan;
 };
 
 
