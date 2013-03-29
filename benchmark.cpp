@@ -145,18 +145,19 @@ bool Benchmark::setup( const unsigned& trees, const unsigned& instances, const u
 
 
 /**
- * [Benchmark::set_players Register both hunters.]
+ * [Benchmark::set_hunters Register both hunters.]
  * @param  A [Angelo.]
  * @param  J [Jonathan.]
  * @return   [Registration success.]
  */
-bool Benchmark::set_players( ChuckInterface *A, ChuckInterface *J )
+bool Benchmark::set_hunters( ChuckInterface *A, ChuckInterface *J )
 {
 	// Safety check
 	if ( !A || !J ) return false;
 
 	// Set pointers
-	angelo = A; jonathan = J;
+	angelo   = A; 
+	jonathan = J;
 
 	// Report success
 	return true;
@@ -166,12 +167,12 @@ bool Benchmark::set_players( ChuckInterface *A, ChuckInterface *J )
 
 
 /**
- * [Benchmark::start Start the benchmark after setup and registration.]
+ * [Benchmark::run Run the benchmark after setup and registration.]
  * @param  A [Angelo's results.]
  * @param  J [Jonathan's results.]
  * @return   [Benchmark success.]
  */
-bool Benchmark::start( result_type& A, result_type& J )
+bool Benchmark::run( result_type& A, result_type& J )
 {
 	// Safety check
 	if ( !is_ready() || is_running() ) return false;
@@ -197,6 +198,10 @@ bool Benchmark::start( result_type& A, result_type& J )
 	// Report success
 	return true;
 }
+
+
+
+	/********************     **********     ********************/
 
 
 

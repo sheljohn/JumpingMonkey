@@ -88,10 +88,10 @@ public:
 	// Setup new benchmark
 	bool setup( const unsigned& trees, const unsigned& instances, const unsigned& trials );
 
-	// Set players
-	bool set_players( ChuckInterface *A, ChuckInterface *J );
+	// Set hunters
+	bool set_hunters( ChuckInterface *A, ChuckInterface *J );
 
-	// Progress monitors
+	// Progress monitors (of course, it's not thread-safe..)
 	inline bool is_ready() const 
 		{ return angelo && jonathan && n_trees && (current_instance < n_instances); }
 	inline bool is_running() const 
@@ -99,8 +99,8 @@ public:
 	inline bool is_finished() const 
 		{ return angelo && jonathan && n_trees && (current_instance == n_instances); }
 
-	// Start a new instance of the benchmark
-	bool start( result_type& A, result_type& J );
+	// Run the benchmark
+	bool run( result_type& A, result_type& J );
 
 private:
 

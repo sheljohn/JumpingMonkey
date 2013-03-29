@@ -11,8 +11,8 @@ int main()
 	// Create benchmark object
 	Benchmark benchmark;
 
-	// Set players
-	benchmark.set_players( &angelo, &jonathan );
+	// Set hunters
+	benchmark.set_hunters( &angelo, &jonathan );
 
 	// Create testing data and storage
 	
@@ -32,7 +32,7 @@ int main()
 		// Setup benchmark
 		benchmark.setup( n, n*n, n );
 
-		// Start benchmark
-		benchmark.start( a_results[i], j_results[i] );
+		// Run benchmark
+		benchmark.run( a_results[i], j_results[i] );
 	}
 }

@@ -54,7 +54,7 @@ private:
 	// Members
 	// 
 	double *pi_new, *pi_old;
-	std::valarray<unsigned> degrees, strides, neighbors;
+	std::valarray<unsigned> degrees, neighbors;
 	std::valarray<double> array_a, array_b;
 
 	unsigned next_shot, shot_count, n_nodes, n_edges;
