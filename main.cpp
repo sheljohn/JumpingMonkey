@@ -31,7 +31,7 @@ int main()
 	{
 		// Notify
 		printf("******************************************\n");
-		printf("    STARTING BENCHMARK WITH %u TREES        ");
+		printf("    STARTING BENCHMARK WITH %u TREES        ", n);
 		printf("******************************************\n");
 
 		// Setup benchmark
