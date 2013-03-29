@@ -48,7 +48,7 @@ bool Chuck::set_forest( const Forest& forest )
 	neighbors = std::valarray<unsigned>( forest.get_neighbors().data(), n_edges );
 
 	// Load gun
-	reload();
+	restart();
 
 	// Set distributions pointers
 	pi_new = &array_a[0];
@@ -76,9 +76,9 @@ void Chuck::swap_pointers()
 
 
 /**
- * [Chuck::reload Set tables to uniform probability distributions.]
+ * [Chuck::reload Reset tables to uniform probability distributions.]
  */
-void Chuck::reload()
+void Chuck::restart()
 {
 	array_a.resize(n_nodes, (1.0/n_nodes) );
 	array_b.resize(n_nodes, (1.0/n_nodes) );

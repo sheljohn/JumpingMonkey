@@ -233,8 +233,8 @@ void Benchmark::run_instance()
 		monkey = instance.restart();
 
 		// Notify hunters
-		angelo->reload();
-		jonathan->reload();
+		angelo->restart();
+		jonathan->restart();
 
 		// Initialize counters and flags
 		counts_angelo.push_back(0);
