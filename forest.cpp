@@ -358,7 +358,8 @@ void Forest::generate( const unsigned& n )
 /**
  * [Forest::set_neighborhoods Private method to populate the neighbors array 
  * from a generated graph.]
- * @param G [Output of generate_cur_graph().]
+ * @param  G [Output of generate_cur_graph().]
+ * @return   [Rerun generation process if false.]
  */
 bool Forest::postgen_set( const bool *G )
 {

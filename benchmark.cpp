@@ -8,7 +8,8 @@
 
 
 /**
- * [JumpingMonkeyInstance::restart Generate a new forest and put Bob in it.]
+ * [JumpingMonkeyInstance::setup Generate a new forest and put Bob in it.]
+ * @param n_trees [Number of trees in the forest.]
  */
 void JumpingMonkeyInstance::setup( const unsigned& n_trees )
 {
@@ -59,7 +60,8 @@ unsigned JumpingMonkeyInstance::jump()
 
 /**
  * [ResultsStatistics::process Compute statistics from benchmark results.]
- * @param results [The counts vector stored for each hunter.]
+ * @param results [The counts vector for each hunter.]
+ * @param times   [The time vector for each hunter.]
  */
 void ResultsStatistics::process( const std::vector<int>& results, const std::vector<double>& times )
 {
@@ -111,6 +113,7 @@ void ResultsStatistics::process( const std::vector<int>& results, const std::vec
 
 /**
  * [ResultsStatistics::print Display contents on stdout.]
+ * @param name [Name of the corresponding hunter.]
  */
 void ResultsStatistics::print( const char* name ) const
 {
@@ -290,6 +293,7 @@ void Benchmark::run_instance()
  * @param chuck  [Pointer to Chuck's interface.]
  * @param bob    [Current position of Bob.]
  * @param count  [Current shot_count for the player.]
+ * @param time   [Current timer for the player.]
  * @param killed [Will be set to true if Bob is killed.]
  */
 void Benchmark::run_shooting( ChuckInterface *chuck, const unsigned& bob, int& count, double& time, bool& killed )
