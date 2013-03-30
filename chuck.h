@@ -74,9 +74,6 @@ public:
 	// Shoot
 	int shoot();
 
-	// Get shot count
-	inline const unsigned& get_shot_count() const { return shot_count; }
-
 private:
 
 	// Swap pointers to arrays
@@ -88,7 +85,7 @@ private:
 	std::valarray<unsigned> degrees, neighbors;
 	std::valarray<double> array_a, array_b;
 
-	unsigned next_shot, shot_count, n_nodes, n_edges;
+	unsigned next_shot, n_nodes, n_edges;
 
 };
 

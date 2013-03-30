@@ -23,7 +23,7 @@ void Chuck::clear()
 	array_b.~valarray();
 
 	// Scalars
-	next_shot = shot_count = n_nodes = n_edges = 0;
+	next_shot = n_nodes = n_edges = 0;
 }
 
 
@@ -39,9 +39,9 @@ bool Chuck::set_forest( const Forest& forest )
 	if ( !forest ) return false;
 
 	// Set scalar properties first
-	next_shot = shot_count = 0;
-	n_nodes = forest.size();
-	n_edges = forest.get_neighbors().size();
+	next_shot = 0;
+	n_nodes   = forest.size();
+	n_edges   = forest.get_neighbors().size();
 
 	// Copy degrees and neighbors
 	degrees   = forest.get_degrees(); // Note: std requires to resize first, but gcc is a big boy.
@@ -82,7 +82,6 @@ void Chuck::restart()
 {
 	array_a.resize(n_nodes, (1.0/n_nodes) );
 	array_b.resize(n_nodes, (1.0/n_nodes) );
-	shot_count = 0;
 }
 
 
@@ -99,10 +98,14 @@ int Chuck::shoot()
 	// Remember current shot
 	const unsigned tree = next_shot;
 
-	// I really don't know what to say; read.
-	double pi_max      = 0.0; 
-	unsigned *neighbor = &neighbors[0];
-	swap_pointers(); ++shot_count;
+	// Trick to avoid testing for the tree being shot
+	swap_pointers(); pi_old[ tree ] = 0.0;
+
+	// Find new max probability
+	double pi_max = 0.0; 
+
+	// Iterator on neighbors
+	const unsigned *neighbor = &neighbors[0];
 
 	// Compute new probability distribution
 	for ( unsigned t = 0; t < n_nodes; ++t )
@@ -111,7 +114,7 @@ int Chuck::shoot()
 		pi_new[t] = 0.0;
 
 		// Update probability
-		for ( unsigned d = 0; d < degrees[t]; ++d, ++neighbor ) if ( *neighbor != tree ) 
+		for ( unsigned d = 0; d++ < degrees[t]; ++neighbor )
 			pi_new[t] += pi_old[ *neighbor ] / degrees[ *neighbor ];
 
 		// Select tree with max probability for the next shot

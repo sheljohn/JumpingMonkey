@@ -1,6 +1,7 @@
 #ifndef __FOREST__
 #define __FOREST__
 
+#include <iostream>
 #include <cstdlib>
 #include <vector>
 #include <valarray>
@@ -54,11 +55,13 @@ class CUR_Graph
 {
 public:
 
+	typedef std::vector<bool> graph_type;
+
 	// Initialize generator from prescribed degrees
 	void initialize( const std::valarray<unsigned>& d );
 
 	// Generate adjacency matrix (symmetric column storage)
-	void generate( bool *G );
+	void generate( graph_type& G );
 
 private:
 
@@ -66,7 +69,7 @@ private:
 	unsigned sis_select() const;
 
 	// Update post edge-selection
-	void update( const unsigned& selected_edge, bool *G );
+	void update( const unsigned& selected_edge, graph_type& G );
 
 	// Compute the current sum of probabilities
 	double sum_probabilities() const;
@@ -85,7 +88,7 @@ private:
 /**
  * Call this method to generate a CUR graph.
  */
-void generate_cur_graph( const std::valarray<unsigned>& d, bool *G );
+void generate_cur_graph( const std::valarray<unsigned>& d, std::vector<bool>& G );
 
 
 
@@ -108,6 +111,7 @@ public:
 
 	/********************     **********     ********************/
 
+	typedef std::vector<bool>       graph_type;
 	typedef std::vector<unsigned>   vector_type;
 	typedef std::valarray<unsigned> array_type;
 
@@ -151,7 +155,7 @@ public:
 private:
 
 	// Set member data after generating forest
-	bool postgen_set( const bool *G );
+	bool postgen_set( const graph_type& G );
 
 	// Members
 	// 

@@ -197,7 +197,7 @@ unsigned CUR_Graph::sis_select() const
  * @param selected_edge [Output of sis_select().]
  * @param G             [Input of generate().]
  */
-void CUR_Graph::update( const unsigned& selected_edge, bool *G )
+void CUR_Graph::update( const unsigned& selected_edge, graph_type& G )
 {
 	// Static indexer
 	static SMCSIndexer indexer;
@@ -223,7 +223,7 @@ void CUR_Graph::update( const unsigned& selected_edge, bool *G )
  * with symmetric column storage convention.]
  * @param G [Must be bool[ n(n+1)/2 ] initialized to false.]
  */
-void CUR_Graph::generate( bool *G )
+void CUR_Graph::generate( graph_type& G )
 {
 	// Iterate selection and update until no more edge can be selected
 	while ( remaining_edges ) update(sis_select(),G);
@@ -242,15 +242,16 @@ void CUR_Graph::generate( bool *G )
  * Bayati, M. and Kim, J.H. and Saberi, A. "A Sequential Algorithm for Generating Random Graphs"
  * Algorithmica 4, vol. 58, 860-910, 2010
  *
- * d's size must be >= 2., G must be a bool[ n(n+1)/2 ] initialized to false.
+ * d's size must be >= 2., G's must be a n(n+1)/2 initialized to false.
  */
-void generate_cur_graph( const std::valarray<unsigned>& d, bool *G )
+void generate_cur_graph( const std::valarray<unsigned>& d, std::vector<bool>& G )
 {
 	// Static CUR_Graph instance
 	static CUR_Graph graph;
 
 	// Safety checks
-	if ( (d.size() < 2) || !G ) return;
+	const unsigned n = d.size();
+	if ( (n < 2) || (G.size() != (n*(n+1)>>1)) ) return;
 
 	// Initialize graph generator
 	graph.initialize(d);
@@ -317,6 +318,9 @@ void Forest::print() const
  */
 void Forest::generate( const unsigned& n )
 {
+	// Static graph container
+	static std::vector<bool> graph;
+
 	// Safety check
 	if ( n < 2 ) return;
 
@@ -329,8 +333,7 @@ void Forest::generate( const unsigned& n )
 
 	// Allocate boolean adjacency matrix
 	const unsigned gsize = n*(n+1) >> 1;
-	bool *graph          = (bool*) malloc( gsize*sizeof(bool) );
-	bool * const gend    = graph + gsize;
+	graph.resize( gsize );
 
 	// Generation process can take a few cycles
 	bool success = false;
@@ -338,7 +341,7 @@ void Forest::generate( const unsigned& n )
 	while ( !success )
 	{
 		// Reinitialize graph
-		for ( bool *g = graph; g != gend; ) *g++ = false;
+		std::fill( graph.begin(), graph.end(), false );
 
 		// Generate random graphical sequence of degrees
 		generate_graphic_sequence(degrees);
@@ -353,9 +356,6 @@ void Forest::generate( const unsigned& n )
 		// Set neighbors and strides
 		success = postgen_set(graph);
 	}
-
-	// Free adjacency matrix
-	free(graph);
 }
 
 
@@ -366,7 +366,7 @@ void Forest::generate( const unsigned& n )
  * @param  G [Output of generate_cur_graph().]
  * @return   [Rerun generation process if false.]
  */
-bool Forest::postgen_set( const bool *G )
+bool Forest::postgen_set( const graph_type& G )
 {
 	// Static indexer
 	static SMCSIndexer indexer;
