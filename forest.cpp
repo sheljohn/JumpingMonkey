@@ -329,7 +329,7 @@ void Forest::generate( const unsigned& n )
 
 	// Allocate boolean adjacency matrix
 	const unsigned gsize = n*(n+1) >> 1;
-	bool *graph          = (bool*) malloc( gsize, sizeof(bool) );
+	bool *graph          = (bool*) malloc( gsize*sizeof(bool) );
 	bool * const gend    = graph + gsize;
 
 	// Generation process can take a few cycles
