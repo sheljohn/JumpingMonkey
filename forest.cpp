@@ -366,9 +366,6 @@ bool Forest::postgen_set( const bool *G )
 	// Static indexer
 	static SMCSIndexer indexer;
 
-	// Detect degenerate cases
-	bool degenerate = false;
-
 	// Fill neighbors
 	for ( unsigned tree = 0; tree < n_trees; ++tree )
 	{
@@ -383,15 +380,12 @@ bool Forest::postgen_set( const bool *G )
 		// Set stride for next tree
 		strides[tree+1] = neighbors.size();
 
-		// Set final degrees
-		degrees[tree] = strides[tree+1] - strides[tree];
-
-		// Detect null degree
-		degenerate = degenerate || (degrees[tree] == 0);
+		// Set final degree and detect if null
+		if ( (degrees[tree] = strides[tree+1] - strides[tree]) == 0) return false;
 	}
 
-	// Report degenerate flag
-	return !degenerate;
+	// Report success
+	return true;
 }
 
 
