@@ -328,13 +328,18 @@ void Forest::generate( const unsigned& n )
 	strides.resize(n+1,0);
 
 	// Allocate boolean adjacency matrix
-	bool *graph = (bool*) calloc( n*(n+1) >> 1, sizeof(bool) );
+	const unsigned gsize = n*(n+1) >> 1;
+	bool *graph          = (bool*) malloc( gsize, sizeof(bool) );
+	bool * const gend    = graph + gsize;
 
 	// Generation process can take a few cycles
 	bool success = false;
 
 	while ( !success )
 	{
+		// Reinitialize graph
+		for ( bool *g = graph; g != gend; ) *g++ = false;
+
 		// Generate random graphical sequence of degrees
 		generate_graphic_sequence(degrees);
 
