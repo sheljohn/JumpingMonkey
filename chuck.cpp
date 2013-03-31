@@ -187,7 +187,7 @@ bool Angelo::set_forest( const Forest& forest )
 	// // Print shot sequence
 	// printf("Shot sequence(%u) = [", shot_sequence.size());
 	// for ( auto it = shot_sequence.begin(); it != shot_sequence.end(); ) printf(" %d ", *it++);
-	// printf("]\n");
+	// if (impossible) printf("] [IMP] \n"); else printf("]\n");
 
 	// Report success
 	return true;
@@ -250,7 +250,7 @@ bool Angelo::bfs()
 
 			// Iterate on each node of the complement, adding its adjacency
 			for ( int j = 0, other_node = 1; j < n_nodes; ++j, other_node = other_node << 1 ) 
-				if( (current_node != other_node) && (node_complement & other_node) ) 
+				if( node_complement & other_node) 
 					complement_adjacency |= adjacency[j];
 
 			// Remember the current node, the current complement adjacency, and 
