@@ -168,7 +168,7 @@ bool Angelo::set_forest( const Forest& forest )
 	forest.acm_export( cfg, cx );
 
 	// Remember the number of trees
-	n_trees = cfg.first;
+	n_nodes = cfg.first;
 
 	// Reset adjacency
 	memset( adjacency, 0, 22*sizeof(int) );
@@ -179,10 +179,15 @@ bool Angelo::set_forest( const Forest& forest )
 	}
 
 	// Compute results
-	impossible = bfs();
+	impossible = !bfs();
 
 	// Restart iterator
 	restart();
+
+	// // Print shot sequence
+	// printf("Shot sequence(%u) = [", shot_sequence.size());
+	// for ( auto it = shot_sequence.begin(); it != shot_sequence.end(); ) printf(" %d ", *it++);
+	// printf("]\n");
 
 	// Report success
 	return true;
@@ -208,7 +213,7 @@ bool Angelo::bfs()
 {
 
 	// Local variables
-	register int exploration_set, complement_adjacency;
+	int exploration_set, complement_adjacency;
 
 	// Allocate storage
 	std::bitset<MAXSIZE> explored;
@@ -218,7 +223,7 @@ bool Angelo::bfs()
 	shot_sequence.clear();
 
 	// Begin from the first node (explore all others)
-	const int all_nodes_but_first = (1 << n_trees) - 1;
+	const int all_nodes_but_first = (1 << n_nodes) - 1;
 
 	// Initialize unexplored queue
 	std::list<int> unexplored; 
@@ -233,7 +238,7 @@ bool Angelo::bfs()
 		unexplored.pop_front();
 
 		// Explore each node of the set
-		for ( int i = 0, current_node = 1; i < n_trees; ++i, current_node = current_node << 1 ) 
+		for ( int i = 0, current_node = 1; i < n_nodes; ++i, current_node = current_node << 1 ) 
 			if( exploration_set & current_node )
 		{
 
@@ -244,8 +249,8 @@ bool Angelo::bfs()
 			complement_adjacency = 0;
 
 			// Iterate on each node of the complement, adding its adjacency
-			for ( int j = 0, other_node = 1; j < n_trees; ++j, other_node = other_node << 1 ) 
-				if( node_complement & other_node ) 
+			for ( int j = 0, other_node = 1; j < n_nodes; ++j, other_node = other_node << 1 ) 
+				if( (current_node != other_node) && (node_complement & other_node) ) 
 					complement_adjacency |= adjacency[j];
 
 			// Remember the current node, the current complement adjacency, and 
@@ -276,16 +281,6 @@ bool Angelo::bfs()
 	return true;
 }
 
-
-
-/**
- * [Angelo::shoot Simply pull the current target tree from the shooting sequence.]
- * @return [A tree index or -1 if the shooting sequence is empty or there is no strategy.]
- */
-int Angelo::shoot()
-{
-	return ( impossible || current_shot == shot_sequence.rend() ) ? -1 : *current_shot++;
-}
 
 
 	/********************     **********     ********************/

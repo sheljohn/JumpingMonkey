@@ -114,7 +114,10 @@ public:
 	void restart();
 
 	// Shoot
-	int shoot();
+	inline int shoot()
+	{
+		return ( impossible || current_shot == shot_sequence.rend() ) ? -1 : *current_shot++;
+	}
 
 private:
 
@@ -123,7 +126,7 @@ private:
 
 	// Members
 	//
-	int n_trees, adjacency[22]; bool impossible;
+	int n_nodes, adjacency[22]; bool impossible;
 	
 
 	std::vector<int> shot_sequence;
