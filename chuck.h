@@ -1,10 +1,16 @@
 #ifndef __CHUCK__
 #define __CHUCK__
 
+#include <cstring>
+#include <vector>
+#include <bitset>
+#include <list>
+
 #include <valarray>
 #include "forest.h"
 
 #define CHUCK_EPSILON 1e-10
+#define MAXSIZE (1<<21)
 
 
 
@@ -58,7 +64,7 @@ struct ChuckInterface
 /**
  * John's strategy for Chuck. See notes for details.
  */
-class Chuck : public ChuckInterface
+class Jonathan : public ChuckInterface
 {
 public:
 
@@ -86,6 +92,42 @@ private:
 	std::valarray<double> array_a, array_b;
 
 	unsigned next_shot, n_nodes, n_edges;
+
+};
+
+
+
+/**
+ * Angelo's strategy for Chuck.
+ */
+class Angelo : public ChuckInterface
+{
+public:
+
+	// Clear member data
+	void clear();
+
+	// Set hunter from forest information
+	bool set_forest( const Forest& forest );
+
+	// Reset hunter for new hunt
+	void restart();
+
+	// Shoot
+	int shoot();
+
+private:
+
+	// Angelo's code
+	bool bfs();
+
+	// Members
+	//
+	int n_trees, adjacency[22]; bool impossible;
+	
+
+	std::vector<int> shot_sequence;
+	std::vector<int>::const_reverse_iterator current_shot;
 
 };
 

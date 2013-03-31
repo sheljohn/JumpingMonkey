@@ -6,7 +6,8 @@
 int main()
 {
 	// Create both hunters
-	Chuck jonathan, angelo;	
+	Jonathan jonathan;
+	Angelo angelo;
 
 	// Create benchmark object
 	Benchmark benchmark;

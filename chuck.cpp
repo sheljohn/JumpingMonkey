@@ -8,9 +8,9 @@
 
 
 /**
- * [Chuck::clear Clear all member data.]
+ * [Jonathan::clear Clear all member data.]
  */
-void Chuck::clear()
+void Jonathan::clear()
 {
 	// Disable pointers
 	pi_new = pi_old = nullptr;
@@ -29,11 +29,11 @@ void Chuck::clear()
 
 
 /**
- * [Chuck::set_forest Introduce Chuck to the forest.]
+ * [Jonathan::set_forest Introduce Chuck to the forest.]
  * @param  forest [Freshly generated forest.]
  * @return        [Initialization success.]
  */
-bool Chuck::set_forest( const Forest& forest )
+bool Jonathan::set_forest( const Forest& forest )
 {
 	// Safety check
 	if ( !forest ) return false;
@@ -61,12 +61,12 @@ bool Chuck::set_forest( const Forest& forest )
 
 
 /**
- * [Chuck::swap_pointers This is a trick to avoid copying each time pi_new to pi_old. 
+ * [Jonathan::swap_pointers This is a trick to avoid copying each time pi_new to pi_old. 
  * Instead, pointers are swapped just before the update. That way, we virtually replace 
  * the old-old distribution with the old-new (which becomes the new-old), and clear the 
  * old-old to store the new-new. Got it? If yes, frankly cheers. ;)]
  */
-void Chuck::swap_pointers()
+void Jonathan::swap_pointers()
 {
 	double *ptr = pi_old;
 	pi_old = pi_new;
@@ -76,9 +76,9 @@ void Chuck::swap_pointers()
 
 
 /**
- * [Chuck::reload Reset tables to uniform probability distributions.]
+ * [Jonathan::reload Reset tables to uniform probability distributions.]
  */
-void Chuck::restart()
+void Jonathan::restart()
 {
 	array_a.resize(n_nodes, (1.0/n_nodes) );
 	array_b.resize(n_nodes, (1.0/n_nodes) );
@@ -87,14 +87,11 @@ void Chuck::restart()
 
 
 /**
- * [Chuck::shoot Shoot the darn monkey.]
+ * [Jonathan::shoot Shoot the darn monkey.]
  * @return [The chosen tree (that sounds like Avatar..). If Chuck is stuck, dial -1.]
  */
-int Chuck::shoot()
+int Jonathan::shoot()
 {
-	// Safety check
-	if ( n_nodes == 0 || n_edges == 0 ) return -1;
-
 	// Remember current shot
 	const unsigned tree = next_shot;
 
@@ -102,7 +99,7 @@ int Chuck::shoot()
 	swap_pointers(); pi_old[ tree ] = 0.0;
 
 	// Find new max probability
-	double pi_max = 0.0; 
+	register double pi_max = 0.0; 
 
 	// Iterator on neighbors
 	const unsigned *neighbor = &neighbors[0];
@@ -136,6 +133,156 @@ int Chuck::shoot()
 	return (int) tree;
 }
 
+
+
+	/********************     **********     ********************/
+	/********************     **********     ********************/
+
+
+
+/**
+ * [Angelo::clear Clear all member data.]
+ */
+void Angelo::clear()
+{
+	// Clear shot sequence
+	shot_sequence.clear();
+
+	// Reset iterator
+	current_shot = shot_sequence.rbegin();
+}
+
+
+
+/**
+ * [Angelo::set_forest Set member data from current forest.]
+ * @param  forest [A freshly generated forest.]
+ * @return        [Whether setting was successful or not.]
+ */
+bool Angelo::set_forest( const Forest& forest )
+{
+	// Get forest information
+	Forest::agl_pair_type   cfg;
+	Forest::agl_vector_type cx;
+
+	forest.acm_export( cfg, cx );
+
+	// Remember the number of trees
+	n_trees = cfg.first;
+
+	// Reset adjacency
+	memset( adjacency, 0, 22*sizeof(int) );
+	for ( auto it = cx.cbegin(); it != cx.cend(); ++it )
+	{
+		adjacency[ it->first ]  |= 1 << it->second;
+		adjacency[ it->second ] |= 1 << it->first;
+	}
+
+	// Compute results
+	impossible = bfs();
+
+	// Restart iterator
+	restart();
+
+	// Report success
+	return true;
+}
+
+
+
+/**
+ * [Angelo::restart Reset shot sequence.]
+ */
+void Angelo::restart()
+{
+	current_shot = shot_sequence.rbegin();
+}
+
+
+
+/**
+ * [Angelo::bfs Setup shooting strategy from the forest adjacency.]
+ * @return [Whether the planning was successful or the algorithm failed.]
+ */
+bool Angelo::bfs()
+{
+
+	// Local variables
+	register int exploration_set, complement_adjacency;
+
+	// Begin with the exploration of every node except the first
+	const int all_nodes_but_first = (1 << n_trees) - 1;
+
+	// Allocate storage
+	std::bitset<MAXSIZE> explored;
+	std::vector<int> target_tree( MAXSIZE ), parent_set( MAXSIZE );
+
+	// Allocate unexplored queue
+	std::list<int> unexplored; 
+	unexplored.push_back(all_nodes_but_first);
+
+	// Explore nodes
+	while( !unexplored.empty() )
+	{
+
+		// Pull new exploration set from queue
+		if( (exploration_set = unexplored.front()) == 0 ) break;
+		unexplored.pop_front();
+
+		// Explore each node of the set
+		for ( int i = 0, current_node = 1; i < n_trees; ++i, current_node = current_node << 1 ) 
+			if( exploration_set & current_node )
+		{
+
+			// All nodes of the set, except the current one
+			const int node_complement = exploration_set ^ current_node;
+
+			// Create a new set with the adjacency of the complement
+			complement_adjacency = 0;
+
+			// Iterate on each node of the complement, adding its adjacency
+			for ( int j = 0, other_node = 1; j < n_trees; ++j, other_node = other_node << 1 ) 
+				if( node_complement & other_node ) 
+					complement_adjacency |= adjacency[j];
+
+			// Remember the current node, the current complement adjacency, and 
+			// the link between this new set and the current exploration set.
+			if( !explored[complement_adjacency] )
+			{
+				explored[complement_adjacency]    = true;
+				parent_set[complement_adjacency]  = exploration_set;
+				target_tree[complement_adjacency] = i;
+
+				unexplored.push_back(complement_adjacency);
+			}
+		}
+
+	}
+
+	// Impossible
+	if( exploration_set != 0 ) return false;
+
+	// Rollback through the parent sets, and stack the corresponding target trees
+	while( exploration_set != all_nodes_but_first )
+	{
+		shot_sequence.push_back(target_tree[exploration_set]);
+		exploration_set = parent_set[exploration_set];
+	}
+
+	// Report success
+	return true;
+}
+
+
+
+/**
+ * [Angelo::shoot Simply pull the current target tree from the shooting sequence.]
+ * @return [A tree index or -1 if the shooting sequence is empty or there is no strategy.]
+ */
+int Angelo::shoot()
+{
+	return ( impossible || current_shot == shot_sequence.rend() ) ? -1 : *current_shot++;
+}
 
 
 	/********************     **********     ********************/
