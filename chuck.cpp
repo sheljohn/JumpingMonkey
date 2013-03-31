@@ -210,19 +210,19 @@ bool Angelo::bfs()
 	// Local variables
 	register int exploration_set, complement_adjacency;
 
-	// Begin with the exploration of every node except the first
-	const int all_nodes_but_first = (1 << n_trees) - 1;
-
 	// Allocate storage
 	std::bitset<MAXSIZE> explored;
 	std::vector<int> target_tree( MAXSIZE ), parent_set( MAXSIZE );
 
-	// Allocate unexplored queue
-	std::list<int> unexplored; 
-	unexplored.push_back(all_nodes_but_first);
-
 	// Reset shot sequence
 	shot_sequence.clear();
+
+	// Begin from the first node (explore all others)
+	const int all_nodes_but_first = (1 << n_trees) - 1;
+
+	// Initialize unexplored queue
+	std::list<int> unexplored; 
+	unexplored.push_back(all_nodes_but_first);
 
 	// Explore nodes
 	while( !unexplored.empty() )
