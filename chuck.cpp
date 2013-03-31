@@ -221,6 +221,9 @@ bool Angelo::bfs()
 	std::list<int> unexplored; 
 	unexplored.push_back(all_nodes_but_first);
 
+	// Reset shot sequence
+	shot_sequence.clear();
+
 	// Explore nodes
 	while( !unexplored.empty() )
 	{
