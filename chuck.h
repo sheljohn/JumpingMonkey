@@ -1,6 +1,15 @@
 #ifndef __CHUCK__
 #define __CHUCK__
 
+//=============================================
+// @filename     chuck.h
+// @date         April 1st 2013
+// @author       Jonathan H. (Sheljohn on Github)
+// @contact      ariel .dot hadida [at] gmail
+// @license      Creative Commons by-nc-sa 3.0 
+//               http://creativecommons.org/licenses/by-nc-sa/3.0/
+//=============================================
+
 #include <cstring>
 #include <vector>
 #include <bitset>

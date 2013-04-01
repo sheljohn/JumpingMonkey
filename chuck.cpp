@@ -1,5 +1,14 @@
 #include "chuck.h"
 
+//=============================================
+// @filename     chuck.cpp
+// @date         April 1st 2013
+// @author       Jonathan H. (Sheljohn on Github)
+// @contact      ariel .dot hadida [at] gmail
+// @license      Creative Commons by-nc-sa 3.0 
+//               http://creativecommons.org/licenses/by-nc-sa/3.0/
+//=============================================
+
 
 
 	/********************     **********     ********************/
